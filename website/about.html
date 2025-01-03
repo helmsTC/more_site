@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Mosaic Reality Photography</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --scale: 0.1;
+            --space: 8vmin;
+            --font-primary: 'Lato', sans-serif;
+            --font-heading: 'Playfair Display', serif;
+        }
+        @media (prefers-reduced-motion) {
+            :root {
+                --scale: 0;
+            }
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: var(--font-primary);
+            color: hsl(0, 0%, 95%);
+            background-color: hsl(5, 15%, 5%);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            line-height: 1.6;
+        }
+        a {
+            color: hsl(65, 80%, 60%);
+            text-decoration: none;
+        }
+        a:hover, a:focus {
+            text-decoration: underline;
+        }
+        header, footer {
+            text-align: center;
+            padding: 2rem;
+        }
+        h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 1rem;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            color: hsl(0, 0%, 95%);
+            background-color: hsl(5, 15%, 25%);
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: hsl(5, 15%, 35%);
+            transform: scale(1.05);
+        }
+        .section {
+            transform-origin: center top;
+            transform: scaleY(calc(1 - var(--scale)));
+            margin-bottom: 10vh;
+        }
+        .section > * {
+            transform-origin: center top;
+            transform: scaleY(calc(1 / (1 - var(--scale))));
+        }
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        .byline {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .content {
+            margin: 2rem auto;
+            padding: var(--space);
+            max-width: 60ch;
+            background: hsla(5, 15%, 5%, 0.9);
+            border-radius: 8px;
+        }
+        .content > * + * {
+            margin-top: 1rem;
+        }
+        .image-container {
+            position: sticky;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        footer {
+            font-size: 0.9rem;
+            margin-top: 5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>About Us</h1>
+        <a href="index.html" class="back-button">← Back to Home</a>
+    </header>
+    <main id="main-content"></main>
+    <footer>
+        &copy; 2024 Mosaic Reality Photography. All Rights Reserved.
+    </footer>
+    <script>
+        // Dynamic content array
+        var content = [
+            {
+                title: "Capturing the fragments of reality, one stunning moment at a time",
+                image: 'more.jpg',
+            }
+        ];
+
+        // Main content container
+        const main = document.getElementById('main-content');
+
+        // Create sections dynamically
+        content.forEach(item => {
+            const section = document.createElement('section');
+            section.classList.add('section');
+
+            // Image container
+            const figure = document.createElement('figure');
+            figure.classList.add('image-container');
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.title;
+            figure.appendChild(img);
+
+            // Content
+            const article = document.createElement('article');
+            article.classList.add('content');
+            const h2 = document.createElement('h2');
+            h2.classList.add('section-title');
+            h2.textContent = item.title;
+
+            const byline = document.createElement('span');
+            byline.classList.add('byline');
+
+            const paragraph = document.createElement('p');
+            paragraph.textContent = "Shatter the mundane and unveil the mystic fragments of our universe through wild exposures, ethereal astrophotography, and mesmerizing nightscapes that capture the broken pieces of reality, crafting a captivating mosaic that reveals the hidden";
+
+            article.appendChild(h2);
+            article.appendChild(byline);
+            article.appendChild(paragraph);
+
+            // Append figure and article to section
+            section.appendChild(figure);
+            section.appendChild(article);
+
+            // Append section to main
+            main.appendChild(section);
+        });
+    </script>
+</body>
+</html>

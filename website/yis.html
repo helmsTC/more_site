@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Year in Synesthesia - Foggy Neon</title>
+  <style>
+    /********************************************************
+     * 1) PAGE & BACKGROUND
+     ********************************************************/
+    :root {
+      --scale: 4; /* Scale factor for easy adjustments */
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #160020; /* Base mystic background */
+      overflow: hidden;          /* Hide scrollbars */
+      font-family: sans-serif;
+      position: relative;
+    }
+
+    /********************************************************
+     * 2) "FOG OVERLAY" - A large swirling gradient
+     *    mimicking "thick fog" that shifts over time
+     ********************************************************/
+    .fog-overlay {
+      pointer-events: none; /* So we can click through if needed */
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      /* A large radial gradient to approximate “fog lumps” */
+      background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.06) 0%,
+        rgba(255, 255, 255, 0)    80%
+      ),
+      radial-gradient(
+        circle at 70% 60%,
+        rgba(255, 255, 255, 0.04) 5%,
+        rgba(255, 255, 255, 0)    60%
+      );
+      /* 
+         A big blur helps create that swirling, out-of-focus effect;
+         combination of scale + blur can produce a “drifting cloud” look.
+      */
+      filter: blur(120px);
+      mix-blend-mode: lighten; /* or 'screen' / 'overlay' / 'soft-light' to experiment */
+      animation: drift 20s infinite linear alternate;
+      z-index: 9999; /* On top of everything else */
+    }
+
+    /* Animate the background-position or transform to simulate drifting fog. */
+    @keyframes drift {
+      0% {
+        transform: translate(0%, 0%);
+      }
+      50% {
+        transform: translate(10%, -10%);
+      }
+      100% {
+        transform: translate(-5%, 15%);
+      }
+    }
+
+    /********************************************************
+     * 3) CENTERED "2025" TEXT
+     ********************************************************/
+    .year-container {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #fff;
+      z-index: 1; /* Make sure it's behind .fog-overlay if we want the fog on top */
+    }
+
+    .year {
+      font-size: 4rem;
+      letter-spacing: 10px;
+      font-weight: bold;
+      display: inline-flex;
+      position: relative;
+    }
+
+    /* 
+       We reduce the glows on '2' and '0' 
+       so they appear “softer” under thick fog,
+       letting the big yellow overshadow them more.
+    */
+    .digit2 {
+      color: #fff;
+      text-shadow:
+        0 0 5px  #30caff,
+        0 0 10px #30caff;
+      opacity: 0.9; /* Slight fade so the ‘5’ can dominate */
+    }
+    .digit0 {
+      color: #fff;
+      text-shadow:
+        0 0 6px  #fff,
+        0 0 12px #fff;
+      opacity: 0.9;
+    }
+
+    /* The "5" is a bright yellow with huge bloom. */
+    .digit5 {
+      color: #fff;
+      text-shadow:
+        0 0 20px  #ffff00,
+        0 0 40px  #ffff00,
+        0 0 80px  #ffff00,
+        0 0 160px #ffeb3b; /* Warmer glow further out */
+      opacity: 1.0; /* Fully bright */
+    }
+
+    /*
+      Keep the swirling neon “fog” behind the 5,
+      but we can intensify it for the “neon in the fog” look:
+    */
+    .digit5::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 320px;   /* Slightly bigger */
+      height: 320px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(255, 255, 128, 0.3) 0%,
+        rgba(255, 255, 0,   0.15) 40%,
+        transparent 100%
+      );
+      filter: blur(100px);
+      z-index: -1;
+      animation: swirl 8s linear infinite;
+      mix-blend-mode: screen; /* Let it combine more softly with other colors */
+    }
+
+    @keyframes swirl {
+      0%   { transform: translate(-50%, -50%) rotate(0deg);   }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* 
+      Additional “aura” for the 5 
+      to push color onto the other digits like a real neon spill.
+    */
+    .digit5::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -50%) scale(0.7);
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(255, 255, 0, 0.15) 0%,
+        rgba(255, 255, 0, 0)    40%,
+        transparent 100%
+      );
+      filter: blur(150px);
+      z-index: -2;
+      animation: overshadow 4s infinite ease-in-out;
+      mix-blend-mode: screen;
+    }
+    @keyframes overshadow {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.9; }
+      50%      { transform: translate(-50%, -50%) scale(1.0); opacity: 1;    }
+    }
+
+    /********************************************************
+     * 4) CAULDRON & FIRE AT THE BOTTOM
+     *    (Scaled 2x)
+     ********************************************************/
+    .cauldron {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%); /* Removed scale transform */
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(30px * var(--scale)); /* Scaled from 30px to 60px */
+      border-radius: 0 0 100% 100%;
+      background: linear-gradient(to top, #0f2027, #203a43, #2c5364);
+      border: calc(1px * var(--scale)) solid black; /* Increased border thickness */
+      z-index: 1; /* Show it above the background, behind the fog overlay */
+    }
+
+    .cauldron-top {
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(10px * var(--scale)); /* Scaled from 10px to 20px */
+      border-radius: 100%;
+      position: absolute;
+      bottom: calc(24px * var(--scale)); /* Scaled from 24px to 48px */
+      right: calc(-1px * var(--scale)); /* Scaled from -1px to -2px */
+      border: calc(1px * var(--scale)) solid black; /* Increased border thickness */
+      background-image: radial-gradient(circle, #ffff66, #ffd000, black);
+      box-shadow: calc(0px * var(--scale)) calc(-35px * var(--scale)) calc(77px * var(--scale)) calc(41px * var(--scale)) rgba(255, 220, 0, 0.8); /* Scaled shadow values */
+    }
+
+    .cauldron-bottom {
+      width: calc(20px * var(--scale)); /* Scaled from 20px to 40px */
+      height: calc(5px * var(--scale)); /* Scaled from 5px to 10px */
+      background: linear-gradient(to top, #0f2027, #203a43, #2c5364);
+      position: absolute;
+      bottom: calc(-6px * var(--scale)); /* Scaled from -6px to -12px */
+      right: calc(20px * var(--scale)); /* Scaled from 20px to 40px */
+    }
+
+    .fire {
+      position: absolute;
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      top: calc(-68px * var(--scale)); /* Scaled from -68px to -136px */
+      right: calc(-2px * var(--scale)); /* Scaled from -2px to -4px */
+    }
+
+    /* Fire layers: bright yellowish color for thick-fog neon look */
+    .fire-red {
+      position: absolute;
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(70px * var(--scale)); /* Scaled from 70px to 140px */
+      background-image: linear-gradient(315deg, #fff94a 0%, #ffd400 74%);
+      clip-path: polygon(55% 34%, 79% 57%, 95% 78%, 79% 100%, 21% 100%, 9% 78%, 23% 57%);
+      box-shadow: calc(-9px * var(--scale)) calc(-52px * var(--scale)) calc(72px * var(--scale)) calc(21px * var(--scale)) rgba(255, 223, 47, 0.5); /* Scaled shadow values */
+      animation: pulse1 0.5s infinite ease-out;
+      mix-blend-mode: screen; /* Let it blend more like light */
+    }
+
+    @keyframes pulse1 {
+      0% {
+        clip-path: polygon(55% 34%, 79% 57%, 95% 78%, 79% 100%, 21% 100%, 9% 78%, 23% 57%);
+      }
+      50% {
+        clip-path: polygon(56% 25%, 79% 54%, 94% 72%, 79% 100%, 21% 100%, 9% 74%, 23% 55%);
+      }
+      100% {
+        clip-path: polygon(57% 0%, 83% 41%, 94% 67%, 79% 100%, 21% 100%, 8% 64%, 24% 45%);
+      }
+    }
+
+    .fire-orange {
+      position: absolute;
+      bottom: calc(-10px * var(--scale)); /* Scaled from -10px to -20px */
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(50px * var(--scale)); /* Scaled from 50px to 100px */
+      background-image: linear-gradient(315deg, #fffa73 0%, #ffe000 74%);
+      clip-path: polygon(41% 45%, 65% 65%, 78% 80%, 70% 100%, 27% 100%, 14% 78%, 25% 65%);
+      animation: pulse2 0.3s infinite ease-out;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes pulse2 {
+      0% {
+        clip-path: polygon(41% 45%, 65% 65%, 78% 80%, 70% 100%, 27% 100%, 14% 78%, 25% 65%);
+      }
+      50% {
+        clip-path: polygon(45% 33%, 66% 56%, 79% 71%, 70% 100%, 27% 100%, 15% 74%, 23% 58%);
+      }
+      100% {
+        clip-path: polygon(47% 24%, 68% 51%, 80% 65%, 70% 100%, 27% 100%, 15% 71%, 23% 53%);
+      }
+    }
+
+    .fire-yellow {
+      position: absolute;
+      bottom: calc(-10px * var(--scale)); /* Scaled from -10px to -20px */
+      width: calc(60px * var(--scale)); /* Scaled from 60px to 120px */
+      height: calc(40px * var(--scale)); /* Scaled from 40px to 80px */
+      background-image: linear-gradient(315deg, #fffaa4 0%, #fff200 74%);
+      clip-path: polygon(81% 56%, 80% 73%, 80% 88%, 64% 100%, 36% 100%, 27% 83%, 37% 71%);
+      animation: pulse3 1s infinite ease-out;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes pulse3 {
+      0% {
+        clip-path: polygon(47% 52%, 66% 67%, 73% 83%, 64% 100%, 36% 100%, 28% 85%, 34% 69%);
+      }
+      50% {
+        clip-path: polygon(54% 45%, 66% 65%, 72% 84%, 64% 100%, 36% 100%, 31% 85%, 33% 68%);
+      }
+      100% {
+        clip-path: polygon(44% 43%, 61% 60%, 72% 82%, 64% 100%, 36% 100%, 29% 88%, 33% 70%);
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 1) "2025" TEXT IN THE CENTER -->
+  <div class="year-container">
+    <div class="year">
+      <span class="digit2">2</span>
+      <span class="digit0">0</span>
+      <span class="digit2">2</span>
+      <span class="digit5">5</span>
+    </div>
+  </div>
+
+  <!-- 2) CAULDRON & LARGER FIRE AT THE BOTTOM -->
+  <div class="cauldron">
+    <div class="cauldron-top"></div>
+    <div class="fire">
+      <div class="fire-red"></div>
+      <div class="fire-orange"></div>
+      <div class="fire-yellow"></div>
+    </div>
+    <div class="cauldron-bottom"></div>
+  </div>
+
+  <!-- 3) GLOBAL FOG OVERLAY - layered above everything -->
+  <div class="fog-overlay"></div>
+
+</body>
+</html>

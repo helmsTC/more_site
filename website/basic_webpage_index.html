@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosaic Reality Photography</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/175711/delaunay.js" onload="console.log('Delaunay loaded');" onerror="console.error('Failed to load Delaunay');"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            background: radial-gradient(circle, #2a0845, #6441a5);
+            overflow: hidden;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .button-container {
+            display: inline-block;
+        }
+        .button {
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+            margin: 0.5rem;
+            background: #6a11cb;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Place the canvas in the background */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .glass {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="background"></canvas>
+
+    <div class="container">
+        <h1>Mosaic Reality Photography</h1>
+        <div class="button-container">
+            <button class="button" onclick="pageShatterEffect('portfolio.html')">Portfolio</button>
+            <button class="button" onclick="animateGrass()">About Us</button>
+            <button class="button" onclick="animateGrass()">Contact</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Background Animation with Three.js
+        const canvas = document.getElementById('background');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+
+        function createParticles() {
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 3,
+                    dx: (Math.random() - 0.5) * 2,
+                    dy: (Math.random() - 0.5) * 2,
+                    color: `rgba(255, 255, 255, ${Math.random()})`
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+        }
+
+        function updateParticles() {
+            particles.forEach(p => {
+                p.x += p.dx;
+                p.y += p.dy;
+
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+            });
+        }
+
+        function animateBackground() {
+            drawParticles();
+            updateParticles();
+            requestAnimationFrame(animateBackground);
+        }
+
+        createParticles();
+        animateBackground();
+
+        // Page Shatter Effect
+        function pageShatterEffect(redirectUrl) {
+            const rect = document.body.getBoundingClientRect();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            document.body.appendChild(canvas);
+
+            html2canvas(document.body).then((screenshotCanvas) => {
+                const image = screenshotCanvas;
+                ctx.drawImage(image, 0, 0);
+
+                // Generate random points for triangulation
+                const points = [];
+                for (let i = 0; i < 200; i++) { // Increased points for more pronounced effect
+                    points.push([
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                    ]);
+                }
+
+                const triangles = Delaunay.triangulate(points);
+
+                const fragments = [];
+
+                for (let i = 0; i < triangles.length; i += 3) {
+                    const x1 = points[triangles[i]][0];
+                    const y1 = points[triangles[i]][1];
+                    const x2 = points[triangles[i + 1]][0];
+                    const y2 = points[triangles[i + 1]][1];
+                    const x3 = points[triangles[i + 2]][0];
+                    const y3 = points[triangles[i + 2]][1];
+
+                    const fragmentCanvas = document.createElement('canvas');
+                    const fragmentCtx = fragmentCanvas.getContext('2d');
+                    fragmentCanvas.width = canvas.width;
+                    fragmentCanvas.height = canvas.height;
+
+                    fragmentCtx.beginPath();
+                    fragmentCtx.moveTo(x1, y1);
+                    fragmentCtx.lineTo(x2, y2);
+                    fragmentCtx.lineTo(x3, y3);
+                    fragmentCtx.closePath();
+                    fragmentCtx.clip();
+                    fragmentCtx.drawImage(image, 0, 0);
+
+                    fragments.push({
+                        canvas: fragmentCanvas,
+                        x: 0,
+                        y: 0,
+                        dx: Math.random() * 800 - 400, // Increased movement for more dramatic effect
+                        dy: Math.random() * 800 - 400, // Increased movement for more dramatic effect
+                        opacity: 1
+                    });
+                }
+
+                const animationDuration = 1.5;
+
+                function animateFragments() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    fragments.forEach(fragment => {
+                        fragment.x += fragment.dx * 0.02;
+                        fragment.y += fragment.dy * 0.02;
+                        fragment.opacity -= 0.02;
+
+                        if (fragment.opacity > 0) {
+                            ctx.globalAlpha = fragment.opacity;
+                            ctx.drawImage(fragment.canvas, fragment.x, fragment.y);
+                        }
+                    });
+
+                    if (fragments.some(f => f.opacity > 0)) {
+                        requestAnimationFrame(animateFragments);
+                    } else {
+                        fragments.forEach(f => f.canvas.remove());
+                        canvas.remove();
+                        window.location.href = redirectUrl;
+                    }
+                }
+
+                animateFragments();
+            });
+        }
+
+        function animateGrass() {
+            const grass = document.createElement('div');
+            grass.style.position = 'absolute';
+            grass.style.width = '50px';
+            grass.style.height = '50px';
+            grass.style.background = 'green';
+            grass.style.borderRadius = '50%';
+            grass.style.left = `${Math.random() * window.innerWidth}px`;
+            grass.style.top = `${Math.random() * window.innerHeight}px`;
+            document.body.appendChild(grass);
+
+            gsap.to(grass, {
+                scale: 0,
+                opacity: 0,
+                duration: 1,
+                onComplete: () => grass.remove()
+            });
+        }
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

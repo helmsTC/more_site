@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Mosaic Reality Photography</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            background: radial-gradient(circle, #2a0845, #160020);
+            overflow: hidden;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        header {
+            text-align: center;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            color: hsl(0, 0%, 95%);
+            background-color: hsl(5, 15%, 25%);
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: hsl(5, 15%, 35%);
+            transform: scale(1.05);
+        }
+        .portfolio-container {
+            display: flex;
+            flex-wrap: nowrap; /* Prevent wrapping */
+            overflow: hidden; /* Hide the scrollbar */
+            gap: 1.5rem;
+            padding: 2rem;
+            height: auto;
+            max-width: 100%;
+        }
+        /* Hide scrollbar */
+        .portfolio-container::-webkit-scrollbar {
+            display: none;
+        }
+        .portfolio-item {
+            width: 600px;
+            height: 400px;
+            background-color: #ffffff22;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .portfolio-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.7);
+        }
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.5);
+        }
+        .lightbox:target {
+            display: flex;
+        }
+        footer {
+            margin-top: auto;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cities</h1>
+        <p>Shattered Realities Merge into Mesmerizing Cityscapes.</p>
+        <a href="../../portfolio.html" class="back-button">← Back to Categories</a>
+
+    </header>
+
+    <div class="portfolio-container" id="portfolio">
+        <a href="#lightbox1" class="portfolio-item" style="background-image: url('../portfolio_images/cities/shreveport.jpg');"></a>
+
+    </div>
+
+    <!-- Lightbox Model -->
+    <div id="lightbox1" class="lightbox">
+        <img src="../portfolio_images/cities/shreveport.jpg" alt="Nighttime in Shreveport">
+    </div>
+
+    <footer>
+        &copy; 2024 Mosaic Reality Photography. All Rights Reserved.
+    </footer>
+
+    <script>
+        const portfolioContainer = document.getElementById('portfolio');
+
+        function continuousAutoScroll() {
+            const maxScrollLeft = portfolioContainer.scrollWidth - portfolioContainer.clientWidth;
+
+            // Increment scrollLeft to create continuous scrolling
+            portfolioContainer.scrollLeft += 1;
+
+            // If the scroll reaches the end, reset it to the start
+            if (portfolioContainer.scrollLeft >= maxScrollLeft) {
+                portfolioContainer.scrollLeft = 0;
+            }
+
+            // Repeat the function for smooth scrolling
+            requestAnimationFrame(continuousAutoScroll);
+        }
+
+        // Start continuous auto-scrolling
+        continuousAutoScroll();
+
+        // Close lightbox on background click
+        document.querySelectorAll('.lightbox').forEach(lightbox => {
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    window.location.hash = ''; // Close the lightbox
+                }
+            });
+        });
+    </script>
+</body>
+</html>

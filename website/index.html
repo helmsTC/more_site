@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Mosaic Reality Photography</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Lobster&family=Caveat:wght@400;700&family=Press+Start+2P&family=Orbitron:wght@400;700&family=Exo+2:wght@400;700&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Voronoi library -->
+  <script
+    src="https://cdn.rawgit.com/gorhill/Javascript-Voronoi/master/rhill-voronoi-core.js"
+    onload="console.log('Voronoi library loaded');"
+    onerror="console.error('Failed to load Voronoi library');"
+  ></script>
+
+  <!-- GSAP + html2canvas -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+  ></script>
+
+  <style>
+    /* Basic reset / layout */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ===== THEMES ===== */
+
+    /* 
+      1) THEME MODERN: 
+         Still has radial cosmic overlay + flicker (unchanged)
+    */
+    .theme-modern {
+      --bg-gradient: radial-gradient(circle, #2a0845, #160020);
+      --text-color: #ffffff;
+      --button-bg: #160020;
+      position: relative; 
+      animation: flickerBG 5s infinite;
+    }
+    @keyframes flickerBG {
+      0%, 100% {
+        filter: brightness(100%);
+      }
+      10% {
+        filter: brightness(120%);
+      }
+      20% {
+        filter: brightness(80%);
+      }
+      30% {
+        filter: brightness(110%);
+      }
+      40% {
+        filter: brightness(95%);
+      }
+      50% {
+        filter: brightness(105%);
+      }
+      60% {
+        filter: brightness(90%);
+      }
+      70% {
+        filter: brightness(115%);
+      }
+      80% {
+        filter: brightness(85%);
+      }
+      90% {
+        filter: brightness(100%);
+      }
+    }
+    .theme-modern::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none; 
+      background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 60%);
+      opacity: 0;
+      animation: cosmicFlash 8s infinite; 
+    }
+    @keyframes cosmicFlash {
+      0%, 100% { opacity: 0; }
+      10%      { opacity: 0.6; }
+      11%      { opacity: 0; }
+      50%      { opacity: 0.2; }
+      51%      { opacity: 0; }
+      90%      { opacity: 0.4; }
+      91%      { opacity: 0; }
+    }
+
+    /* 
+      2) THEME NEO-NOIR (unchanged)
+    */
+    .theme-neo-noir {
+      --bg-gradient: radial-gradient(circle, #0f0f0f, #1a1a1a);
+      --text-color: #00ff99;
+      --button-bg: #00cc66;
+    }
+
+    /* 
+      3) THEME VINTAGE GAME: 
+         Sweeping golden linear leak
+    */
+    .theme-vintage-game {
+      --bg-gradient: radial-gradient(circle, #1b1b32, #4e4376);
+      --text-color: #ffcc00;
+      --button-bg: #cc9900;
+
+      position: relative; 
+    }
+    .theme-vintage-game::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+
+      /* Golden stripes + transparent gaps sweeping across */
+      background: linear-gradient(
+        120deg,
+        rgba(255, 204, 0, 0.3) 0%,
+        transparent 40%,
+        rgba(255, 204, 0, 0.3) 60%,
+        transparent 100%
+      );
+      background-size: 200% 100%;
+      opacity: 0;
+
+      animation: vintageSweep 6s infinite;
+    }
+    @keyframes vintageSweep {
+      0% {
+        opacity: 0;
+        background-position: -200% 0%;
+      }
+      10% {
+        opacity: 1;
+        background-position: 0% 0%;
+      }
+      90% {
+        opacity: 1;
+        background-position: 200% 0%;
+      }
+      100% {
+        opacity: 0;
+        background-position: 300% 0%;
+      }
+    }
+
+    /* 
+      4) THEME TRON:
+         Sweeping neon or “multiversal” leak
+    */
+    .theme-tron {
+      --bg-gradient: radial-gradient(circle, #000428, #004e92);
+      --text-color: #00ffff;
+      --button-bg: #0088cc;
+
+      position: relative;
+    }
+    .theme-tron::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+
+      /* A bright cyan-pink beam with transparent stripes */
+      background: linear-gradient(
+        130deg,
+        rgba(0, 255, 255, 0.4) 0%,
+        rgba(255, 0, 255, 0.25) 20%,
+        transparent 40%,
+        rgba(0, 255, 255, 0.4) 60%,
+        rgba(255, 0, 255, 0.25) 80%,
+        transparent 100%
+      );
+      background-size: 300% 100%;
+      opacity: 0;
+
+      animation: tronSweep 8s infinite;
+    }
+    @keyframes tronSweep {
+      0% {
+        opacity: 0;
+        background-position: -300% 0%;
+      }
+      10% {
+        opacity: 1;
+        background-position: 0% 0%;
+      }
+      90% {
+        opacity: 1;
+        background-position: 300% 0%;
+      }
+      100% {
+        opacity: 0;
+        background-position: 400% 0%;
+      }
+    }
+
+    /* BODY uses whichever theme is on it */
+    body {
+      margin: 0;
+      font-family: "Playfair Display", serif;
+      background: var(--bg-gradient);
+      overflow: hidden;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 1s ease, color 1s ease;
+      position: relative;
+    }
+
+    /* cosmic background behind everything */
+    #underworld {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      display: none; 
+      background: url('https://cdn.jsdelivr.net/gh/naptha/tessdata/nebula.jpg')
+        no-repeat center center / cover;
+      animation: cosmicFlashBg 6s ease-in-out infinite alternate;
+    }
+    @keyframes cosmicFlashBg {
+      0% {
+        filter: hue-rotate(0deg) brightness(1);
+      }
+      20% {
+        filter: hue-rotate(60deg) brightness(2);
+      }
+      40% {
+        filter: hue-rotate(180deg) brightness(1.5);
+      }
+      60% {
+        filter: hue-rotate(300deg) brightness(2.2);
+      }
+      80% {
+        filter: hue-rotate(240deg) brightness(1);
+      }
+      100% {
+        filter: hue-rotate(360deg) brightness(1.8);
+      }
+    }
+
+    /* Main container */
+    .container {
+      text-align: center;
+      z-index: 1; 
+    }
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 2s ease-in-out;
+      transition: font-family 1s ease, transform 1s ease;
+    }
+    .button-container {
+      display: inline-block;
+    }
+    .button {
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      margin: 0.5rem;
+      background: var(--button-bg);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 1s ease;
+    }
+    .button:hover {
+      transform: scale(1.1);
+      box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* background animation canvas */
+    #background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body class="theme-modern">
+  <!-- cosmic swirl behind everything -->
+  <div id="underworld"></div>
+
+  <!-- animated background canvas -->
+  <canvas id="background"></canvas>
+
+  <!-- Main content container -->
+  <div class="container" id="content-container">
+    <h1>Mosaic Reality Photography</h1>
+    <div class="button-container">
+      <button class="button" onclick="pageShatterEffect('portfolio.html')">
+        Portfolio
+      </button>
+      <button class="button" onclick="animateGrass()">About Us</button>
+      <button class="button" onclick="animateGrass()">Contact</button>
+    </div>
+  </div>
+
+  <script>
+    // ===========================================
+    // Theme & Font Rotation Setup
+    // ===========================================
+    const themes = ["theme-modern", "theme-neo-noir", "theme-vintage-game", "theme-tron"];
+    const fonts = [
+      "'Playfair Display', serif",
+      "'Roboto', sans-serif",
+      "'Lobster', cursive",
+      "'Caveat', cursive",
+      "'Press Start 2P', cursive",
+      "'Orbitron', sans-serif",
+      "'Exo 2', sans-serif",
+      "'VT323', monospace"
+    ];
+
+    const body = document.body;
+    const header = document.querySelector("h1");
+    let currentThemeIndex = 0;
+    let currentFontIndex = 0;
+
+    function changeThemeAndFont() {
+      // Update font
+      currentFontIndex = (currentFontIndex + 1) % fonts.length;
+      header.style.fontFamily = fonts[currentFontIndex];
+      // Add a random transform to the heading
+      header.style.transform = `scale(${
+        1 + Math.random() * 0.2
+      }) rotate(${Math.random() * 10 - 5}deg)`;
+
+      // Update theme
+      body.classList.remove(themes[currentThemeIndex]);
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      body.classList.add(themes[currentThemeIndex]);
+    }
+
+    function startThemeCycle() {
+      let lastTime = 0;
+      function step(timestamp) {
+        // 10 seconds (10000 ms) between changes
+        if (timestamp - lastTime >= 10000) {
+          changeThemeAndFont();
+          lastTime = timestamp;
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    startThemeCycle();
+
+    // ===========================================
+    // Background Animation (Particles)
+    // ===========================================
+    const bgCanvas = document.getElementById("background");
+    const bgCtx = bgCanvas.getContext("2d");
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
+
+    let particles = [];
+
+    function createParticles() {
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: Math.random() * bgCanvas.width,
+          y: Math.random() * bgCanvas.height,
+          radius: Math.random() * 6,
+          dx: (Math.random() - 0.5) * 2,
+          dy: (Math.random() - 0.5) * 2,
+          color: `rgba(${(Math.random() * 255).toFixed(0)}, 255, 255, ${Math.random().toFixed(
+            2
+          )})`
+        });
+      }
+    }
+
+    function drawParticles() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      particles.forEach(p => {
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        bgCtx.fillStyle = p.color;
+        bgCtx.fill();
+      });
+    }
+
+    function updateParticles() {
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        // bounce off edges
+        if (p.x < 0 || p.x > bgCanvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > bgCanvas.height) p.dy *= -1;
+      });
+    }
+
+    function animateBackground() {
+      drawParticles();
+      updateParticles();
+      requestAnimationFrame(animateBackground);
+    }
+    createParticles();
+    animateBackground();
+
+    // ===========================================
+    // Page Shatter Effect
+    // ===========================================
+    function pageShatterEffect(redirectUrl) {
+      const contentContainer = document.getElementById("content-container");
+      const underworld = document.getElementById("underworld");
+
+      // Show cosmic background
+      underworld.style.display = "block";
+
+      // Create shatter canvas
+      const shatterCanvas = document.createElement("canvas");
+      shatterCanvas.width = document.body.scrollWidth;
+      shatterCanvas.height = document.body.scrollHeight;
+      shatterCanvas.style.position = "absolute";
+      shatterCanvas.style.top = "0";
+      shatterCanvas.style.left = "0";
+      shatterCanvas.style.zIndex = "9999";
+      document.body.appendChild(shatterCanvas);
+
+      const shatterCtx = shatterCanvas.getContext("2d");
+
+      html2canvas(document.body, { backgroundColor: null }).then(screenshotCanvas => {
+        // Hide main content
+        contentContainer.classList.add("hidden");
+
+        const image = screenshotCanvas;
+
+        // Voronoi
+        const voronoi = new Voronoi();
+        const sites = [];
+        const pointCount = 150; // more points => more shards
+        for (let i = 0; i < pointCount; i++) {
+          sites.push({
+            x: Math.random() * shatterCanvas.width,
+            y: Math.random() * shatterCanvas.height
+          });
+        }
+
+        const bbox = {
+          xl: 0,
+          xr: shatterCanvas.width,
+          yt: 0,
+          yb: shatterCanvas.height
+        };
+        const diagram = voronoi.compute(sites, bbox);
+
+        function getCellBounds(cell) {
+          let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+          cell.halfedges.forEach(he => {
+            const pt = he.getEndpoint();
+            if (pt.x < minx) minx = pt.x;
+            if (pt.x > maxx) maxx = pt.x;
+            if (pt.y < miny) miny = pt.y;
+            if (pt.y > maxy) maxy = pt.y;
+          });
+          return { minx, miny, maxx, maxy };
+        }
+
+        const fragments = [];
+
+        diagram.cells.forEach(cell => {
+          if (!cell.halfedges || cell.halfedges.length === 0) return;
+          const { minx, miny, maxx, maxy } = getCellBounds(cell);
+          const width = maxx - minx;
+          const height = maxy - miny;
+          if (width <= 0 || height <= 0) return;
+
+          // Shard canvas
+          const fragCanvas = document.createElement("canvas");
+          fragCanvas.width = Math.ceil(width);
+          fragCanvas.height = Math.ceil(height);
+          const fragCtx = fragCanvas.getContext("2d");
+
+          // Clip polygon
+          fragCtx.beginPath();
+          const startPt = cell.halfedges[0].getStartpoint();
+          fragCtx.moveTo(startPt.x - minx, startPt.y - miny);
+
+          cell.halfedges.forEach(he => {
+            const endPt = he.getEndpoint();
+            fragCtx.lineTo(endPt.x - minx, endPt.y - miny);
+          });
+          fragCtx.closePath();
+          fragCtx.clip();
+
+          // Outline
+          fragCtx.strokeStyle = "rgba(255,255,255,0.3)";
+          fragCtx.lineWidth = 1;
+          fragCtx.stroke();
+
+          // Draw screenshot piece
+          fragCtx.drawImage(image, -minx, -miny);
+
+          // Tinted overlay
+          const hue = Math.floor(Math.random() * 360);
+          fragCtx.globalCompositeOperation = "overlay";
+          fragCtx.fillStyle = `hsla(${hue}, 100%, 50%, 0.1)`;
+          fragCtx.fillRect(0, 0, width, height);
+          fragCtx.globalCompositeOperation = "source-over";
+
+          // Random velocity
+          const dx = Math.random() * 100 - 50;
+          const dy = Math.random() * 50;
+          const rotation = Math.random() * 2 * Math.PI;
+          const dAngle = (Math.random() - 0.5) * 0.05;
+
+          fragments.push({
+            canvas: fragCanvas,
+            offsetX: minx,
+            offsetY: miny,
+            x: 0,
+            y: 0,
+            dx,
+            dy,
+            rotation,
+            dAngle,
+            opacity: 1,
+            width,
+            height
+          });
+        });
+
+        const gravity = 8;
+        const drag = 0.98;
+        const TIME_SCALE = 0.8; 
+
+        function animate() {
+          shatterCtx.clearRect(0, 0, shatterCanvas.width, shatterCanvas.height);
+
+          for (let i = 0; i < fragments.length; i++) {
+            const frag = fragments[i];
+            frag.dy += gravity * 0.1 * TIME_SCALE;
+            frag.dx *= drag;
+            frag.x += frag.dx * 0.1 * TIME_SCALE;
+            frag.y += frag.dy * 0.1 * TIME_SCALE;
+            frag.rotation += frag.dAngle * TIME_SCALE;
+            frag.opacity -= 0.01 * TIME_SCALE;
+
+            if (frag.opacity > 0) {
+              shatterCtx.save();
+              shatterCtx.translate(frag.offsetX + frag.x, frag.offsetY + frag.y);
+              shatterCtx.rotate(frag.rotation);
+              shatterCtx.globalAlpha = frag.opacity;
+              shatterCtx.drawImage(frag.canvas, 0, 0);
+              shatterCtx.restore();
+            }
+          }
+
+          for (let i = fragments.length - 1; i >= 0; i--) {
+            if (fragments[i].opacity <= 0) {
+              fragments[i].canvas.remove();
+              fragments.splice(i, 1);
+            }
+          }
+
+          if (fragments.length > 0) {
+            requestAnimationFrame(animate);
+          } else {
+            shatterCanvas.remove();
+            window.location.href = redirectUrl;
+          }
+        }
+        animate();
+      });
+    }
+
+    function animateGrass() {
+      alert("Animate Grass placeholder!");
+    }
+  </script>
+</body>
+</html>

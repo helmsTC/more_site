@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Portfolio - Mosaic Reality Photography</title>
+
+  <!-- Google Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Voronoi library (instead of Delaunay) -->
+  <script
+    src="https://cdn.rawgit.com/gorhill/Javascript-Voronoi/master/rhill-voronoi-core.js"
+    onload="console.log('Voronoi library loaded');"
+    onerror="console.error('Failed to load Voronoi library');"
+  ></script>
+
+  <!-- html2canvas for screenshot -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+  ></script>
+
+  <style>
+    /* Basic reset/layout */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: "Playfair Display", serif;
+      background: radial-gradient(circle, #2a0845, #160020);
+      overflow: hidden;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .back-button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-family: var(--font-primary);
+      color: hsl(0, 0%, 95%);
+      background-color: hsl(5, 15%, 25%);
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+      }
+    .back-button:hover {
+        background-color: hsl(5, 15%, 35%);
+        transform: scale(1.05);
+      }
+    .portfolio-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    .portfolio-item {
+      width: 300px;
+      height: 200px;
+      background-color: #ffffff22;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+    .portfolio-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /*
+      The overlay that holds the sample image + category name,
+      displayed UNDER the shards, but after we hide the portfolio content.
+    */
+    #overlay-info {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none; /* shown right before shards appear */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-family: "Playfair Display", serif;
+      text-align: center;
+      z-index: 1; /* under shards, above old content */
+    }
+    #overlay-info img {
+      max-width: 70%;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.5);
+    }
+    #overlay-info h2 {
+      font-size: 2rem;
+      margin: 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- This overlay will show the sample image behind the shards -->
+  <div id="overlay-info"></div>
+
+  <header>
+    <h1>Our Portfolio</h1>
+    <p>Explore the multiverse of our photography.</p>
+    <a href="index.html" class="back-button">← Back to Home</a>
+
+  </header>
+
+  <div class="portfolio-container">
+    <!-- Pass in the sample image + category name to the function -->
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/night/estes_road.jpg');"
+      onclick="pageShatterEffect('wildlife.html','portfolio_images/night/estes_road.jpg','Wildlife')"
+    ></div>
+
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/35mm/estes_street_film.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/35mm.html','portfolio_images/35mm/estes_street_film.jpg','35mm Film')"
+    ></div>
+
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/astro/milky_way_core.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/astro.html','portfolio_images/astro/milky_way_core.jpg','Astrophotography')"
+    ></div>
+
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/cities/shreveport.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/cities.html','portfolio_images/cities/shreveport.jpg','Cities')"
+    ></div>
+
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/mountains/maroon_bells.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/mountains.html','portfolio_images/mountains/maroon_bells.jpg','Mountains')"
+    ></div>
+
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/np/dune.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/np.html','portfolio_images/np/dune.jpg','National Parks')"
+    ></div>
+    <div
+      class="portfolio-item"
+      style="background-image: url('portfolio_images/autumn/autumn_house.jpg');"
+      onclick="pageShatterEffect('portfolio_categories/autumn.html','portfolio_images/autumn/autumn_house.jpg','National Parks')"
+    ></div>
+  </div>
+
+  <footer>
+    &copy; 2024 Mosaic Reality Photography. All Rights Reserved.
+  </footer>
+
+  <script>
+    async function pageShatterEffect(redirectUrl, featureImage, categoryName) {
+      // 1) First, take a screenshot of the current page (before hiding anything)
+      const screenshotCanvas = await html2canvas(document.body, { backgroundColor: null });
+
+      // 2) Hide the portfolio content
+      document.querySelector("header").classList.add("hidden");
+      document.querySelector(".portfolio-container").classList.add("hidden");
+      document.querySelector("footer").classList.add("hidden");
+
+      // 3) Show the sample image overlay behind shards
+      const overlay = document.getElementById("overlay-info");
+      overlay.innerHTML = "";
+      overlay.style.display = "flex"; // user sees this behind shards
+
+      if (featureImage) {
+        const imgEl = document.createElement("img");
+        imgEl.src = featureImage;
+        overlay.appendChild(imgEl);
+      }
+      if (categoryName) {
+        const h2 = document.createElement("h2");
+        h2.textContent = categoryName;
+        overlay.appendChild(h2);
+      }
+
+      // 4) Create the shatter canvas on top
+      const shatterCanvas = document.createElement("canvas");
+      shatterCanvas.width = document.body.scrollWidth;
+      shatterCanvas.height = document.body.scrollHeight;
+      shatterCanvas.style.position = "absolute";
+      shatterCanvas.style.top = "0";
+      shatterCanvas.style.left = "0";
+      shatterCanvas.style.zIndex = "9999"; // shards on top
+      document.body.appendChild(shatterCanvas);
+
+      const shatterCtx = shatterCanvas.getContext("2d");
+
+      // 5) Build Voronoi from the screenshot
+      const voronoi = new Voronoi();
+      const sites = [];
+      const pointCount = 80; // number of shards
+      for (let i = 0; i < pointCount; i++) {
+        sites.push({
+          x: Math.random() * shatterCanvas.width,
+          y: Math.random() * shatterCanvas.height,
+        });
+      }
+
+      const bbox = {
+        xl: 0,
+        xr: shatterCanvas.width,
+        yt: 0,
+        yb: shatterCanvas.height,
+      };
+      const diagram = voronoi.compute(sites, bbox);
+
+      function getCellBounds(cell) {
+        let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+        cell.halfedges.forEach((he) => {
+          const pt = he.getEndpoint();
+          if (pt.x < minx) minx = pt.x;
+          if (pt.x > maxx) maxx = pt.x;
+          if (pt.y < miny) miny = pt.y;
+          if (pt.y > maxy) maxy = pt.y;
+        });
+        return { minx, miny, maxx, maxy };
+      }
+
+      // 6) Create the shard fragments from that screenshot
+      const fragments = [];
+      diagram.cells.forEach((cell) => {
+        if (!cell.halfedges || cell.halfedges.length === 0) return;
+
+        const { minx, miny, maxx, maxy } = getCellBounds(cell);
+        const width = maxx - minx;
+        const height = maxy - miny;
+        if (width <= 0 || height <= 0) return;
+
+        const fragCanvas = document.createElement("canvas");
+        fragCanvas.width = Math.ceil(width);
+        fragCanvas.height = Math.ceil(height);
+        const fragCtx = fragCanvas.getContext("2d");
+
+        // define polygon
+        fragCtx.beginPath();
+        const startPt = cell.halfedges[0].getStartpoint();
+        fragCtx.moveTo(startPt.x - minx, startPt.y - miny);
+        cell.halfedges.forEach((he) => {
+          const endPt = he.getEndpoint();
+          fragCtx.lineTo(endPt.x - minx, endPt.y - miny);
+        });
+        fragCtx.closePath();
+        fragCtx.clip();
+
+        // optional outline
+        fragCtx.strokeStyle = "rgba(255,255,255,0.3)";
+        fragCtx.lineWidth = 1;
+        fragCtx.stroke();
+
+        // draw portion of screenshot
+        fragCtx.drawImage(screenshotCanvas, -minx, -miny);
+
+        // tinted overlay if desired
+        const hue = Math.floor(Math.random() * 360);
+        fragCtx.globalCompositeOperation = "overlay";
+        fragCtx.fillStyle = `hsla(${hue}, 100%, 50%, 0.1)`;
+        fragCtx.fillRect(0, 0, width, height);
+        fragCtx.globalCompositeOperation = "source-over";
+
+        // random velocity
+        const dx = Math.random() * 100 - 50;
+        const dy = Math.random() * 50;
+        const rotation = Math.random() * 2 * Math.PI;
+        const dAngle = (Math.random() - 0.5) * 0.05;
+
+        fragments.push({
+          canvas: fragCanvas,
+          offsetX: minx,
+          offsetY: miny,
+          x: 0,
+          y: 0,
+          dx,
+          dy,
+          rotation,
+          dAngle,
+          opacity: 1,
+          width,
+          height,
+        });
+      });
+
+      // 7) Animate the shards (fall away, leaving sample image behind)
+      const gravity = 2;
+      const drag = 0.98;
+      const TIME_SCALE = 0.5; // slow-motion factor
+
+      function animate() {
+        shatterCtx.clearRect(0, 0, shatterCanvas.width, shatterCanvas.height);
+
+        for (let i = 0; i < fragments.length; i++) {
+          const frag = fragments[i];
+
+          // gravity
+          frag.dy += gravity * 0.1 * TIME_SCALE;
+          // horizontal drag
+          frag.dx *= drag;
+
+          // position
+          frag.x += frag.dx * 0.1 * TIME_SCALE;
+          frag.y += frag.dy * 0.1 * TIME_SCALE;
+
+          // rotation
+          frag.rotation += frag.dAngle * TIME_SCALE;
+
+          // fade out
+          frag.opacity -= 0.01 * TIME_SCALE;
+
+          if (frag.opacity > 0) {
+            shatterCtx.save();
+            shatterCtx.translate(frag.offsetX + frag.x, frag.offsetY + frag.y);
+            // rotate around top-left corner (or center if you prefer)
+            shatterCtx.rotate(frag.rotation);
+            shatterCtx.globalAlpha = frag.opacity;
+            shatterCtx.drawImage(frag.canvas, 0, 0);
+            shatterCtx.restore();
+          }
+        }
+
+        // remove shards that are fully invisible
+        for (let i = fragments.length - 1; i >= 0; i--) {
+          if (fragments[i].opacity <= 0) {
+            fragments[i].canvas.remove();
+            fragments.splice(i, 1);
+          }
+        }
+
+        if (fragments.length > 0) {
+          requestAnimationFrame(animate);
+        } else {
+          // shards are gone
+          shatterCanvas.remove();
+          // Optionally redirect to the category page
+          window.location.href = redirectUrl;
+        }
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
