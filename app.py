@@ -1,14 +1,32 @@
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify
+import boto3
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__)
 
-@app.route('/')
-def serve_index():
-    return app.send_static_file('index.html')
+# Configure AWS S3
+S3_BUCKET = "more-portfolio"
+S3_REGION = "us-east-2"
+S3_BASE_URL = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com"
 
-@app.route('/<path:path>')
-def serve_static_files(path):
-    return send_from_directory('.', path)
+@app.route('/images/<category>', methods=['GET'])
+def get_images(category):
+    """Fetch image URLs from an S3 folder."""
+    s3 = boto3.client('s3')
+    prefix = f"portfolio_images/{category}/"
+
+    try:
+        response = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
+        if 'Contents' in response:
+            images = [
+                f"{S3_BASE_URL}/{item['Key']}"
+                for item in response['Contents']
+                if item['Key'].endswith(('.jpg', '.png', '.jpeg'))
+            ]
+            return jsonify(images=images)
+        else:
+            return jsonify(error="No images found in this category"), 404
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)
