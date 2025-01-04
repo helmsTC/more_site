@@ -39,11 +39,11 @@
             text-decoration: none;
             transition: background-color 0.3s ease, transform 0.2s ease;
             cursor: pointer;
-      }
-    .back-button:hover {
+        }
+        .back-button:hover {
             background-color: hsl(5, 15%, 35%);
             transform: scale(1.05);
-      }
+        }
         .portfolio-container {
             display: flex;
             flex-wrap: nowrap; /* Prevent wrapping */
@@ -108,37 +108,13 @@
     <header>
         <h1>Caught on Film</h1>
         <a href="../../portfolio.html" class="back-button">← Back to Categories</a>
-
     </header>
 
-    <div class="portfolio-container" id="portfolio">
-        <a href="#lightbox1" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/estes_street_film.jpg');"></a>
-        <a href="#lightbox2" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/7brew.jpg');"></a>
-        <a href="#lightbox3" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/skeeball.jpg');"></a>
-        <a href="#lightbox4" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/station.jpg');"></a>
-        <a href="#lightbox5" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/texan.jpg');"></a>
-        <a href="#lightbox6" class="portfolio-item" style="background-image: url('../portfolio_images/35mm/diner.jpg');"></a>
-    </div>
+    <!-- Dynamic portfolio container -->
+    <div class="portfolio-container" id="portfolio"></div>
 
-    <!-- Lightbox Model -->
-    <div id="lightbox1" class="lightbox">
-        <img src="../portfolio_images/35mm/estes_street_film.jpg" alt="Back Alley">
-    </div>
-    <div id="lightbox2" class="lightbox">
-        <img src="../portfolio_images/35mm/7brew.jpg" alt="coffee Shop">
-    </div>    
-    <div id="lightbox3" class="lightbox">
-        <img src="../portfolio_images/35mm/skeeball.jpg" alt="Skeeball">
-    </div>    
-    <div id="lightbox4" class="lightbox">
-        <img src="../portfolio_images/35mm/station.jpg" alt="Lone Station">
-    </div>
-    <div id="lightbox5" class="lightbox">
-        <img src="../portfolio_images/35mm/texan.jpg" alt="Big Texan">
-    </div>
-    <div id="lightbox6" class="lightbox">
-        <img src="../portfolio_images/35mm/diner.jpg" alt="Mos">
-    </div>
+    <!-- Dynamic lightbox container -->
+    <div id="lightbox-container"></div>
 
     <footer>
         &copy; 2024 Mosaic Reality Photography. All Rights Reserved.
@@ -146,33 +122,59 @@
 
     <script>
         const portfolioContainer = document.getElementById('portfolio');
+        const lightboxContainer = document.getElementById('lightbox-container');
+        const category = '35mm'; // Set the category dynamically as needed
 
+        // Fetch image URLs from the backend
+        async function fetchImages(category) {
+            const response = await fetch(`/images/${category}`);
+            const data = await response.json();
+
+            if (data.error) {
+                portfolioContainer.innerHTML = `<p>${data.error}</p>`;
+            } else {
+                portfolioContainer.innerHTML = ''; // Clear any existing content
+                lightboxContainer.innerHTML = ''; // Clear any existing lightbox content
+
+                data.forEach((url, index) => {
+                    // Create the portfolio item
+                    const portfolioItem = document.createElement('a');
+                    portfolioItem.href = `#lightbox${index}`;
+                    portfolioItem.className = 'portfolio-item';
+                    portfolioItem.style.backgroundImage = `url('${url}')`;
+                    portfolioContainer.appendChild(portfolioItem);
+
+                    // Create the lightbox item
+                    const lightboxItem = document.createElement('div');
+                    lightboxItem.id = `lightbox${index}`;
+                    lightboxItem.className = 'lightbox';
+                    lightboxItem.innerHTML = `<img src="${url}" alt="Image ${index + 1}">`;
+                    lightboxContainer.appendChild(lightboxItem);
+
+                    // Add click-to-close functionality for lightbox
+                    lightboxItem.addEventListener('click', (e) => {
+                        if (e.target === lightboxItem) {
+                            window.location.hash = ''; // Close the lightbox
+                        }
+                    });
+                });
+            }
+        }
+
+        // Fetch images when the page loads
+        fetchImages(category);
+
+        // Continuous auto-scroll functionality
         function continuousAutoScroll() {
             const maxScrollLeft = portfolioContainer.scrollWidth - portfolioContainer.clientWidth;
-
-            // Increment scrollLeft to create continuous scrolling
             portfolioContainer.scrollLeft += 1;
-
-            // If the scroll reaches the end, reset it to the start
             if (portfolioContainer.scrollLeft >= maxScrollLeft) {
                 portfolioContainer.scrollLeft = 0;
             }
-
-            // Repeat the function for smooth scrolling
             requestAnimationFrame(continuousAutoScroll);
         }
 
-        // Start continuous auto-scrolling
         continuousAutoScroll();
-
-        // Close lightbox on background click
-        document.querySelectorAll('.lightbox').forEach(lightbox => {
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) {
-                    window.location.hash = ''; // Close the lightbox
-                }
-            });
-        });
     </script>
 </body>
 </html>
