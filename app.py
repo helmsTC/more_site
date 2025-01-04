@@ -1,4 +1,6 @@
 from flask import Flask, jsonify
+from flask import send_from_directory
+
 import boto3
 
 app = Flask(__name__)
@@ -8,6 +10,14 @@ S3_BUCKET = "more-portfolio"
 S3_REGION = "us-east-2"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com"
 
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static_files(path):
+    return send_from_directory('.', path)
+    
 @app.route('/images/<category>', methods=['GET'])
 def get_images(category):
     """Fetch image URLs from an S3 folder."""
